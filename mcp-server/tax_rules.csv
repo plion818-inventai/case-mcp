@@ -1,7 +1,7 @@
 rule_id,tax_type,rule_name,description,risk_category,logic_condition,suggested_action
 R001,營業稅,存貨積壓異常 (Phantom Inventory),連續兩年存貨對銷項比率大於200% (2.0)，且當年度存貨對進項比率大於70% (0.7)。顯示存貨週轉率極低，遠低於同業水準，疑似有虛增存貨以隱匿漏報銷貨，或虛報進項之情事。,High,"(yr111_inv_sales_ratio > 2.0 AND yr112_inv_sales_ratio > 2.0) AND (yr112_inv_purch_ratio > 0.7)",實地盤點存貨、調閱進銷存明細帳、查核倉儲空間是否足夠
 R002,營業稅,加值率偏低異常 (Low Value Added),連續兩年加值率低於1% (0.01) 或呈現負值。顯示進項金額長期大於或接近銷項金額，缺乏合理商業利潤，疑似收集不實發票虛報進項，或漏開統一發票。,High,"(yr111_vat_rate < 0.01 AND yr112_vat_rate < 0.01)",查核進項憑證是否與業務相關、分析資金流向是否有回流現象
-R003,營業稅,存貨成長與營收脫鉤 (Inventory Decoupling),當年度存貨金額較前一年度成長超過50%，但同期間銷項金額成長低於10%（或衰退）。顯示大量進貨卻未轉化為銷售，疑似為調節稅額而進行之異常進貨。,Medium,"((yr112_inventory - yr111_inventory)/yr111_inventory > 0.5) AND ((yr112_sales - yr111_sales)/yr111_sales < 0.1)",分析進貨來源集中度、檢視期末存貨估價是否合理
+R003,營業稅,存貨成長與營收脫鉤 (Inventory Decoupling),當年度存貨金額較前一年度成長超過50%，但同期間銷項金額成長低於10%（或衰退）。顯示大量進貨卻未轉化為銷售，疑似為調節稅額而進行之異常進貨。,Medium,"yr111_inventory > 0 AND yr111_sales > 0 AND ((yr112_inventory - yr111_inventory)/yr111_inventory > 0.5) AND ((yr112_sales - yr111_sales)/yr111_sales < 0.1)",分析進貨來源集中度、檢視期末存貨估價是否合理
 R004,營業稅,異常鉅額退稅 (Excessive Refund),非零稅率適用之一般零售/批發業，當年度申請退稅金額或留抵稅額超過銷項金額之10%，且實繳稅額為0。疑似藉由虛報固定資產或出口退稅進行詐欺。,High,"(yr112_tax_paid == 0) AND ((yr112_purchases - yr112_sales) * 0.05 > yr112_sales * 0.1)",查核是否有實際出口報單、固定資產購置證明及付款資金流
 R005,營業稅,固定資產佔比過高 (Asset Shielding),進項金額中雖無法直接區分，但若加值率極低且公司資產規模異常膨脹（需結合資產負債表，此處以進銷比模擬），疑似利用購買非公務用高價資產（如豪宅、名車）扣抵稅額。,Medium,"yr112_vat_rate < 0.05 AND yr112_purchases > yr112_sales * 1.5",實地訪查固定資產使用狀況、查核車輛行照與不動產權狀
 R006,營業稅,循環交易警示 (Circular Trading),銷項金額與進項金額差異小於2%，且交易金額巨大（> 1億元），加值率趨近於0。疑似無實質商品交付之循環假交易（Wash Sales），目的為美化財報營收。,High,"abs(yr112_sales - yr112_purchases) / yr112_sales < 0.02 AND yr112_sales > 100000000",勾稽上下游交易對象、查核物流運送紀錄與資金軌跡
