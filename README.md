@@ -41,10 +41,23 @@ python mcp-server/server.py
 
 > `mcp` 套件需釘在 `<2`：mcp 2.x 移除了 `mcp.server.fastmcp`（改名為 `MCPServer`），本程式在 2.x 會無法啟動。
 
-## Example platform start command
+## AgentHub 上架設定（內部 MCP）
+
+| 欄位 | 值 |
+|---|---|
+| 傳輸方式 | `stdio`（平台以 mcp-proxy 包成 streamable-http） |
+| 啟動指令 | `python` / `mcp-server/server.py`（一行一個） |
+
+**不要在啟動指令裡 `pip install`。** stdio MCP 跑在 mcp-proxy 映像（Python 3.13，已內建 mcp 1.25），
+本程式只用標準函式庫與 mcp，免安裝即可執行。該映像的 `pip` 是系統 pip、`python` 是 `/app/.venv`，
+pip 裝的套件 python 讀不到；且平台 MCP pod 預設無外網，pip 失敗會讓 `&&` 後的 server 永遠起不來。
+
+本機模擬平台執行方式：
 
 ```bash
-sh -c "pip install --quiet -r requirements.txt && exec python mcp-server/server.py"
+docker run --rm -p 8080:8080 -v "$PWD":/workspace -w /workspace --entrypoint sh \
+  ghcr.io/sparfenyuk/mcp-proxy:v0.11.0 -c 'exec mcp-proxy --port 8080 --host 0.0.0.0 -- python mcp-server/server.py'
+# MCP endpoint: http://localhost:8080/mcp
 ```
 
 ## Test
